@@ -1,0 +1,4 @@
+rootProject.name = 'zoope'
+include 'zoope-jclient'
+include 'zoope-server'
+findProject(":zoope-server").name = "zoope-server"

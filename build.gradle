@@ -1,0 +1,61 @@
+group 'cn.ac.iie.zoope'
+version '0.1.0'
+
+subprojects {
+
+    apply plugin: 'java'
+
+    // JVM 版本号要求
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    //java编译的时候缺省状态下会因为中文字符而失败
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile('junit:junit:4.12')
+        compile(
+
+                "org.apache.thrift:libthrift:0.12.0",
+
+                "redis.clients:jedis:2.9.0",
+                "com.google.code.gson:gson:2.8.5",
+                "commons-io:commons-io:2.6",
+
+                "org.apache.logging.log4j:log4j-slf4j-impl:2.10.0",
+                "org.apache.logging.log4j:log4j-core:2.10.0",
+
+                fileTree(dir: 'lib', include: ['*.jar*'])
+        )
+
+    }
+
+    configurations {
+        // 所有需要忽略的包定义在此
+        //all*.exclude group: 'commons-httpclient'
+        //all*.exclude group: 'commons-logging'
+        //all*.exclude group: 'commons-beanutils', module: 'commons-beanutils'
+    }
+
+    jar {
+        //from {
+        //    //添加依懒到打包文件
+        //    configurations.runtime.collect { zipTree(it) }
+        //}
+        manifest {
+            attributes("Implementation-Title": 'zoppe')
+        }
+    }
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+
+}
