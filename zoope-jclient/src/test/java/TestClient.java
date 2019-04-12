@@ -1,4 +1,5 @@
 import cn.ac.iie.zoope.client.ZoopeClient;
+import cn.ac.iie.zoope.exception.ZoopeException;
 import cn.ac.iie.zoope.iface.*;
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -10,36 +11,16 @@ public class TestClient {
 
 
     @Test
-    public void test() throws TException {
+    public void test() throws ZoopeException {
 
-        ZoopeClient client = ZoopeClient.builder().url("").user("zzq").password("zzq").build();
+        ZoopeClient client = ZoopeClient.builder().url("localhost:8000").user("zzq").password("zzq").build();
 
-        IZoopeDatabase db = client.database("mydb");
+        client.insert("db", "1113table", "[{\"id\":123123, \"name\":\"zzq\"}]");
 
-        if (!db.exist()) {
-            db.create();
-        }
-        IZoopeTable table = db.table("test");
+        client.search("db", "1113table", "id:123123 OR name:(zzq OR zzk)", 10, "id", "asc");
 
-        if (!table.exist()) {
-            List<IZoopeField> fields = new ArrayList<>();
-            fields.add(new ZoopeField("id", FieldType.STRING, true, false));
-            fields.add(new ZoopeField("name", FieldType.STRING, true, true));
-            ZoopeField create_time = new ZoopeField("create_time", FieldType.LONG, true);
-            //TODO 时间精确度
-            create_time.setPartition(true);
-            fields.add(create_time);
-            table.create(fields);
-            //TODO 分区规则
-        }
+        client.update("db", "1113table", "id:123123", "{\"id\":123123, \"name\":\"zzk\"}");
 
-        ITableInsert insert = table.insert();
-
-        insert.json("{\"id\":\"123123\", \"name\":\"zzq\", \"create_time\": " + System.currentTimeMillis() + "}");
-
-        ITableSearch search = table.search();
-
-        String json = search.and("id","123123", "=").or("name", new ZoopeTerm("zzq").or("zzk"), "=").time("2019-01-01 00:00:00", ">=").time("2019-01-02 00:00:00", "<").run();
-
+        client.delete("db", "1113table", "id:123123");
     }
 }
